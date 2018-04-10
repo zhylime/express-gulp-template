@@ -12,9 +12,12 @@ var app = express(),
     gulp = require('gulp'),
     jade = require('gulp-jade'),
     stylus = require('gulp-stylus'),
+    uglify = require('gulp-uglify'),
+    concat = require('gulp-concat'),
+    rename = require('gulp-rename'),
     browserSync = require('browser-sync'),
     watch = require('node-watch'),
-    defaultTasks = ['jade', 'stylus', 'watch-all', 'browser-sync'];
+    defaultTasks = ['jade', 'stylus', 'js', 'watch-all', 'browser-sync'];
 
  
 var config = {
@@ -28,10 +31,13 @@ var paths = {
 
   static: config.build + 'assets/',
   css: config.build + 'assets/css/',
+  js: config.build + 'assets/js/',
   srcJade: config.src + 'jade/pages/**/*.jade',
   srcStylus: config.src + 'stylus/app.styl',
+  srcJs: config.src + 'js/',
   styles: config.src + 'stylus/',
-  jade: config.src + 'jade/'
+  jade: config.src + 'jade/',
+
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'src'));
@@ -89,18 +95,26 @@ gulp.task('stylus', function(){
   gulp.src(paths.srcStylus)
   .pipe(stylus())
   .pipe(gulp.dest(paths.css));
-  console.log(paths.css);
+})
+
+gulp.task('js', function(){
+  gulp.src(paths.srcJs + '*.js')
+  .pipe(concat('app.js'))
+  .pipe(gulp.dest(paths.js))
+  .pipe(uglify())
+  .pipe(rename('app.min.js'))
+  .pipe(gulp.dest(paths.js));
 })
 
 // watch all
 gulp.task('watch-all', function(){
-  watch(paths.jade,{ recursive: true }, function(evt, file){
+  watch(paths.jade, { recursive: true }, function(evt, file){
     gulp.start('jade');
   });
 
-  // watch(paths.styles, function(file){
-
-  // })
+  watch(paths.styles, { recursive: true }, function(evt, file){
+    gulp.start('stylus');
+  })
 });
 
 gulp.task('default', defaultTasks ,function(){

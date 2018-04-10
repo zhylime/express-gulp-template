@@ -15,8 +15,11 @@
   },
   "devDependencies": {
     "browser-sync": "^2.23.6",
+    "gulp-concat": "^2.6.1",
     "gulp-jade": "^1.1.0",
+    "gulp-rename": "^1.2.2",
     "gulp-stylus": "^2.7.0",
+    "gulp-uglify": "^3.0.0",
     "node-watch": "^0.5.8"
   }
 }
