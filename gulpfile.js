@@ -11,20 +11,27 @@ var usersRouter = require('./routes/users');
 var app = express(),
     gulp = require('gulp'),
     jade = require('gulp-jade'),
+    stylus = require('gulp-stylus'),
     browserSync = require('browser-sync'),
-    defaultTasks = ['jade', 'browser-sync'];
+    watch = require('node-watch'),
+    defaultTasks = ['jade', 'stylus', 'watch-all', 'browser-sync'];
 
  
 var config = {
   root: './',
   src: './src/',
-  build: __dirname + '/build/'
+  build: __dirname + '/public/'
 }
 
 var paths = {
   build: config.build,
+
   static: config.build + 'assets/',
-  srcJade: config.src + 'jade/pages/**/*.jade'
+  css: config.build + 'assets/css/',
+  srcJade: config.src + 'jade/pages/**/*.jade',
+  srcStylus: config.src + 'stylus/app.styl',
+  styles: config.src + 'stylus/',
+  jade: config.src + 'jade/'
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'src'));
@@ -57,8 +64,11 @@ app.use(function(err, req, res, next) {
 
 // jade task
 gulp.task('jade', function(){
+  var _build = paths.build,
+      _root = config.root;
   gulp.src(paths.srcJade)
   .pipe(jade({
+    locals: {_root: _root},
     pretty:true
   }))
   .pipe(gulp.dest(paths.build));
@@ -74,8 +84,27 @@ gulp.task('browser-sync', function(){
   })
 });
 
+// stylus task
+gulp.task('stylus', function(){
+  gulp.src(paths.srcStylus)
+  .pipe(stylus())
+  .pipe(gulp.dest(paths.css));
+  console.log(paths.css);
+})
+
+// watch all
+gulp.task('watch-all', function(){
+  watch(paths.jade,{ recursive: true }, function(evt, file){
+    gulp.start('jade');
+  });
+
+  // watch(paths.styles, function(file){
+
+  // })
+});
+
 gulp.task('default', defaultTasks ,function(){
   console.log('this is gulp defult task');
-})
+});
 
 module.exports = app;
