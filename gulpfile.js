@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 
 
 var app = express(),
+    fs = require('fs'),
     gulp = require('gulp'),
     jade = require('gulp-jade'),
     stylus = require('gulp-stylus'),
@@ -16,19 +17,29 @@ var app = express(),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
     browserSync = require('browser-sync'),
+    data = require('gulp-data'),
     watch = require('node-watch'),
-    defaultTasks = ['jade', 'stylus', 'js', 'watch-all', 'browser-sync'];
+    requirejs = require('requirejs'),
+    locals = {},
+    defaultTasks = ['jade', 'stylus', 'js', 'locale', 'watch-all', 'browser-sync'];
 
- 
 var config = {
   root: './',
   src: './src/',
-  build: __dirname + '/public/'
+  build: __dirname + '/public/',
+  language: 'en'
 }
+
+var merge = function(obj1, obj2){
+  for(var attrname in obj2){
+    obj1[attrname] = obj2[attrname]
+  }
+  return obj1
+}
+
 
 var paths = {
   build: config.build,
-
   static: config.build + 'assets/',
   css: config.build + 'assets/css/',
   js: config.build + 'assets/js/',
@@ -37,8 +48,17 @@ var paths = {
   srcJs: config.src + 'js/',
   styles: config.src + 'stylus/',
   jade: config.src + 'jade/',
+  // locale: __dirname + '/src/locale/' + config.language + '.json' 
+  locale: config.src + 'locale/' + config.language + '.json'
 
 }
+
+var getLocals = function(){
+  locals = merge({'config': config}, require(paths.locale));
+  // locals = requirejs(paths.locale);
+  return merge({'paths': paths}, locals);
+}
+
 // view engine setup
 app.set('views', path.join(__dirname, 'src'));
 app.set('view engine', 'jade');
@@ -71,14 +91,15 @@ app.use(function(err, req, res, next) {
 // jade task
 gulp.task('jade', function(){
   var _build = paths.build,
+      // _locals = getLocals(),
       _root = config.root;
+  
   gulp.src(paths.srcJade)
   .pipe(jade({
-    locals: {_root: _root},
-    pretty:true
+    locals: merge({_root: _root}, JSON.parse(fs.readFileSync(paths.locale))),
+
   }))
   .pipe(gulp.dest(paths.build));
-  console.log('compiled jade successfully!');
 })
 
 // browser-sync task
@@ -106,6 +127,12 @@ gulp.task('js', function(){
   .pipe(gulp.dest(paths.js));
 })
 
+gulp.task('locale', function(){
+  watch(paths.locale, function(){
+    gulp.start('jade');
+    // console.log(paths.locale);
+  })
+})
 // watch all
 gulp.task('watch-all', function(){
   watch(paths.jade, { recursive: true }, function(evt, file){
