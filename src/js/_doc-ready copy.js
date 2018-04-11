@@ -1,3 +1,5 @@
 $(document).ready(function(){
-  console.log('doc ready');
+  for(let i = 0; i < 10; i ++){
+    console.log(i);
+  }
 });

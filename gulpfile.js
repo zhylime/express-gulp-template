@@ -16,10 +16,10 @@ var app = express(),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
+    babel = require('gulp-babel'),
     browserSync = require('browser-sync'),
     data = require('gulp-data'),
     watch = require('node-watch'),
-    requirejs = require('requirejs'),
     locals = {},
     defaultTasks = ['jade', 'stylus', 'js', 'locale', 'watch-all', 'browser-sync'];
 
@@ -48,14 +48,12 @@ var paths = {
   srcJs: config.src + 'js/',
   styles: config.src + 'stylus/',
   jade: config.src + 'jade/',
-  // locale: __dirname + '/src/locale/' + config.language + '.json' 
   locale: config.src + 'locale/' + config.language + '.json'
 
 }
 
 var getLocals = function(){
   locals = merge({'config': config}, require(paths.locale));
-  // locals = requirejs(paths.locale);
   return merge({'paths': paths}, locals);
 }
 
@@ -120,6 +118,9 @@ gulp.task('stylus', function(){
 
 gulp.task('js', function(){
   gulp.src(paths.srcJs + '*.js')
+  .pipe(babel({
+    presets: ['es2015']
+  }))
   .pipe(concat('app.js'))
   .pipe(gulp.dest(paths.js))
   .pipe(uglify())

@@ -1,6 +1,12 @@
-$(document).ready(function(){
-  console.log('doc ready');
+"use strict";
+
+$(document).ready(function () {
+  for (var i = 0; i < 10; i++) {
+    console.log(i);
+  }
 });
-$(document).ready(function(){
+'use strict';
+
+$(document).ready(function () {
   console.log('doc ready');
 });
