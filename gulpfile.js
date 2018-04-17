@@ -45,7 +45,7 @@ var paths = {
   js: config.build + 'assets/js/',
   srcJade: config.src + 'jade/pages/**/*.jade',
   srcStylus: config.src + 'stylus/app.styl',
-  srcJs: config.src + 'js/',
+  srcJs: [config.src + 'js/helpers/', config.src + 'js/'],
   styles: config.src + 'stylus/',
   jade: config.src + 'jade/',
   locale: config.src + 'locale/' + config.language + '.json'
@@ -117,7 +117,7 @@ gulp.task('stylus', function(){
 })
 
 gulp.task('js', function(){
-  gulp.src(paths.srcJs + '*.js')
+  gulp.src(paths.srcJs)
   .pipe(babel({
     presets: ['es2015']
   }))
@@ -131,7 +131,6 @@ gulp.task('js', function(){
 gulp.task('locale', function(){
   watch(paths.locale, function(){
     gulp.start('jade');
-    // console.log(paths.locale);
   })
 })
 // watch all
@@ -142,6 +141,11 @@ gulp.task('watch-all', function(){
 
   watch(paths.styles, { recursive: true }, function(evt, file){
     gulp.start('stylus');
+  });
+
+  watch(config.src + 'js/', {recursive: true}, function(evt, file){
+    console.log('watching js');
+    gulp.start('js');
   })
 });
 
